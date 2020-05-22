@@ -11,11 +11,16 @@ from bots.NotAnIdiotBot4 import NotAnIdiotBot4
 from bots.NotAnIdiotBot5 import NotAnIdiotBot5
 from bots.CheeseBot1 import CheeseBot1
 from bots.CheeseBot2 import CheeseBot2
+from bots.HeuristicBot1 import HeuristicBot1
+from bots.HeuristicBot2 import HeuristicBot2
+from bots.HeuristicBot3 import HeuristicBot3
+from bots.HeuristicBot4 import HeuristicBot4
 import time
+import sys
 import curses
 
-bot1 = NotAnIdiotBot4()
-bot2 = NotAnIdiotBot5()
+bot1 = HeuristicBot4()
+bot2 = HeuristicBot3()
 
 outcome_map = {
     State.PLAYER1WINS: type(bot1).__name__,
@@ -23,8 +28,9 @@ outcome_map = {
     State.DRAWGAME: "Draw"
 }
 
-# doGame( bot1, bot2, True)
-# exit()
+if len(sys.argv) > 1 and sys.argv[1] == "verbose":
+    doGame(bot1, bot2, True)
+    exit()
 
 outcomes = {
     State.PLAYER1WINS: 0,
@@ -32,11 +38,6 @@ outcomes = {
     State.DRAWGAME: 0
 }
 
-
-    # items = outcomes.items()
-    # items = sorted(items, key=lambda c: c[0].name)
-    # for outcome in items:
-    #     print (F"{outcome[0]}: {outcome[1]}")
 
 def proper_round(num, dec=0):
     num = str(num)[:str(num).index('.')+dec+2]
@@ -55,9 +56,10 @@ def getNormalizedMap(outcomes):
     }
     return decimal_map
 
-def pbar(window):
+def animated(window):
     window.move(5,0)
-    sleep_interval = 1.
+    # sleep_interval = 1.
+    sleep_interval = .00001
     speed_up_cycles = 5
     cycles = 1000
     for i in range(1000):
@@ -88,10 +90,35 @@ def pbar(window):
     if(outcomes[State.PLAYER1WINS] == outcomes[State.PLAYER2WINS]):
         window.addstr(5, 0,F"No way! It's a draw!")
     elif(outcomes[State.PLAYER1WINS] > outcomes[State.PLAYER2WINS]):
-        window.addstr(5, 0,F"{outcome_map[State.PLAYER1WINS]} wins! Congrats!")
+        win_rate = (outcomes[State.PLAYER1WINS] + (.5 * outcomes[State.DRAWGAME])) / cycles
+        window.addstr(5, 0,F"{outcome_map[State.PLAYER1WINS]} wins! Win rate: {win_rate}. Congrats!")
     else:
-        window.addstr(5, 0,F"{outcome_map[State.PLAYER2WINS]} wins! Congrats!")
+        win_rate = (outcomes[State.PLAYER2WINS] + (.5 * outcomes[State.DRAWGAME])) / cycles
+        window.addstr(5, 0,F"{outcome_map[State.PLAYER2WINS]} wins! Win rate: {win_rate}. Congrats!")
     window.addstr(7, 0,F"<press any key to exit>")
     window.getkey()
 
-curses.wrapper(pbar)
+def runSimple():
+    cycles = 1000
+    for i in range(1000):
+        outcome = doGame(bot1, bot2, False)
+        outcomes[outcome] += 1
+
+    print(F"{outcome_map[State.DRAWGAME]}:\t\t\t{outcomes[State.DRAWGAME]}")
+    print(F"{outcome_map[State.PLAYER1WINS]}:\t{outcomes[State.PLAYER1WINS]}")
+    print(F"{outcome_map[State.PLAYER2WINS]}:\t{outcomes[State.PLAYER2WINS]}")
+
+    if(outcomes[State.PLAYER1WINS] == outcomes[State.PLAYER2WINS]):
+        print(F"No way! It's a draw!")
+    elif(outcomes[State.PLAYER1WINS] > outcomes[State.PLAYER2WINS]):
+        win_rate = (outcomes[State.PLAYER1WINS] + (.5 * outcomes[State.DRAWGAME])) / cycles
+        print(F"{outcome_map[State.PLAYER1WINS]} wins! Win rate: {win_rate}. Congrats!")
+    else:
+        win_rate = (outcomes[State.PLAYER2WINS] + (.5 * outcomes[State.DRAWGAME])) / cycles
+        print(F"{outcome_map[State.PLAYER2WINS]} wins! Win rate: {win_rate}. Congrats!")
+
+
+if len(sys.argv) > 1 and sys.argv[1] == "simple":
+    runSimple()
+else:
+    curses.wrapper(animated)
