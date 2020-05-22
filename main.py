@@ -59,27 +59,29 @@ def pbar(window):
     window.move(5,0)
     sleep_interval = 1.
     speed_up_cycles = 5
+    cycles = 1000
     for i in range(1000):
         outcome = doGame(bot1, bot2, False)
         outcomes[outcome] += 1
-        normalized_outcomes = getNormalizedMap(outcomes)
-        window.addstr(1, 2,F"{outcome_map[State.DRAWGAME]}:")
-        window.addstr(2, 2,F"{outcome_map[State.PLAYER1WINS]}:")
-        window.addstr(3, 2,F"{outcome_map[State.PLAYER2WINS]}:")
-        window.addstr(1, 22,F"{outcomes[State.DRAWGAME]}")
-        window.addstr(2, 22,F"{outcomes[State.PLAYER1WINS]}")
-        window.addstr(3, 22,F"{outcomes[State.PLAYER2WINS]}")
-        window.addstr(1, 26,F"{normalized_outcomes[State.DRAWGAME] * '#'}{(BAR_SIZE-normalized_outcomes[State.DRAWGAME]) * ' '}")
-        window.addstr(2, 26,F"{normalized_outcomes[State.PLAYER1WINS] * '#'}{(BAR_SIZE-normalized_outcomes[State.DRAWGAME]) * ' '}")
-        window.addstr(3, 26,F"{normalized_outcomes[State.PLAYER2WINS] * '#'}{(BAR_SIZE-normalized_outcomes[State.DRAWGAME]) * ' '}")
-        window.move(5,0)
+        if(i < 200 or i % 25 == 0 or i == cycles-1):
+            normalized_outcomes = getNormalizedMap(outcomes)
+            window.addstr(1, 2,F"{outcome_map[State.DRAWGAME]}:")
+            window.addstr(2, 2,F"{outcome_map[State.PLAYER1WINS]}:")
+            window.addstr(3, 2,F"{outcome_map[State.PLAYER2WINS]}:")
+            window.addstr(1, 22,F"{outcomes[State.DRAWGAME]}")
+            window.addstr(2, 22,F"{outcomes[State.PLAYER1WINS]}")
+            window.addstr(3, 22,F"{outcomes[State.PLAYER2WINS]}")
+            window.addstr(1, 26,F"{normalized_outcomes[State.DRAWGAME] * '#'}{(BAR_SIZE-normalized_outcomes[State.DRAWGAME]) * ' '}")
+            window.addstr(2, 26,F"{normalized_outcomes[State.PLAYER1WINS] * '#'}{(BAR_SIZE-normalized_outcomes[State.DRAWGAME]) * ' '}")
+            window.addstr(3, 26,F"{normalized_outcomes[State.PLAYER2WINS] * '#'}{(BAR_SIZE-normalized_outcomes[State.DRAWGAME]) * ' '}")
+            window.move(5,0)
+            window.refresh()
         if(i >= 200):
             sleep_interval = 0
         elif(i % speed_up_cycles == 0 and i != 0):
             speed_up_cycles = int(speed_up_cycles * 1.5)
             sleep_interval /= 1.5
             # window.addstr(7, 0,F"Speed: {sleep_interval}")
-        window.refresh()
         time.sleep(sleep_interval)
 
 
